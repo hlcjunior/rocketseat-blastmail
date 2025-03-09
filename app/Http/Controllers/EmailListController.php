@@ -6,6 +6,7 @@ use App\Models\EmailList;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class EmailListController extends Controller
@@ -31,9 +32,16 @@ class EmailListController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        $data = $request->validate([
+            'title' => ['required', 'max:255'],
+            //'file' => ['required', 'file'],
+        ]);
+
+        EmailList::query()->create($data);
+
+        return to_route("email-list.index");
     }
 
     /**
