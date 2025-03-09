@@ -36,10 +36,30 @@ class EmailListController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'max:255'],
-            //'file' => ['required', 'file'],
+            'listFile' => ['required', 'file', 'mimes:csv'],
         ]);
 
-        EmailList::query()->create($data);
+        $listFile = $request->file('listFile');
+        $fileHandle = fopen($listFile->getRealPath(), 'r');
+        $items = [];
+
+        while (($line = fgetcsv($fileHandle)) !== false) {
+            if(mb_strtolower($line[0])  == 'name' && mb_strtolower($line[1]) == 'email') {
+                continue;
+            }
+
+            $items[] = [
+                'name' => $line[0],
+                'email' => $line[1],
+            ];
+        }
+
+        fclose($fileHandle);
+
+        $emailList = EmailList::query()->create([
+            'title' => $data['title'],
+        ]);
+        $emailList->subscribers()->createMany($items);
 
         return to_route("email-list.index");
     }
