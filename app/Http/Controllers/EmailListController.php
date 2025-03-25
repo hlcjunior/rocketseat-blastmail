@@ -8,6 +8,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 class EmailListController extends Controller
 {
@@ -34,32 +36,19 @@ class EmailListController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'title' => ['required', 'max:255'],
             'listFile' => ['required', 'file', 'mimes:csv'],
         ]);
 
-        $listFile = $request->file('listFile');
-        $fileHandle = fopen($listFile->getRealPath(), 'r');
-        $items = [];
+        $emails = $this->getEmailsFromCsvFile($request->file('listFile'));
 
-        while (($line = fgetcsv($fileHandle)) !== false) {
-            if(mb_strtolower($line[0])  == 'name' && mb_strtolower($line[1]) == 'email') {
-                continue;
-            }
-
-            $items[] = [
-                'name' => $line[0],
-                'email' => $line[1],
-            ];
-        }
-
-        fclose($fileHandle);
-
-        $emailList = EmailList::query()->create([
-            'title' => $data['title'],
-        ]);
-        $emailList->subscribers()->createMany($items);
+        DB::transaction(function () use ($request, $emails) {
+            $emailList = EmailList::query()->create([
+                'title' => $request->title,
+            ]);
+            $emailList->subscribers()->createMany($emails);
+        });
 
         return to_route("email-list.index");
     }
@@ -94,5 +83,29 @@ class EmailListController extends Controller
     public function destroy(EmailList $emailList)
     {
         //
+    }
+
+    /**
+     * @param UploadedFile $listFile
+     * @return array
+     */
+    private function getEmailsFromCsvFile(UploadedFile $listFile): array
+    {
+        $fileHandle = fopen($listFile->getRealPath(), 'r');
+        $items = [];
+
+        while (($line = fgetcsv($fileHandle)) !== false) {
+            if (mb_strtolower($line[0]) == 'name' && mb_strtolower($line[1]) == 'email') {
+                continue;
+            }
+
+            $items[] = [
+                'name' => $line[0],
+                'email' => $line[1],
+            ];
+        }
+
+        fclose($fileHandle);
+        return $items;
     }
 }
