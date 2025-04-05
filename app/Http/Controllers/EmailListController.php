@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmailList;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -18,8 +19,21 @@ class EmailListController extends Controller
      */
     public function index(): View|Application|Factory
     {
+        $search = request()->search;
+        $emailLists = EmailList::query()
+            ->withCount('subscribers')
+            ->when(
+                $search,
+                fn(Builder $query) => $query
+                    ->where('title', 'like', "%$search%")
+                    ->orWhere('id', '=', $search)
+            )
+            ->paginate(2)
+            ->appends(compact('search'));
+
         return view('email-list.index', [
-            'emailLists' => EmailList::query()->paginate(),
+            'emailLists' => $emailLists,
+            'search' => $search,
         ]);
     }
 
