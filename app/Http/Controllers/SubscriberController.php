@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rule;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -38,6 +39,24 @@ class SubscriberController extends Controller
             'search' => $search,
             'showTrash' => $showTrash,
         ]);
+    }
+
+    public function create(EmailList $emailList): Factory|View
+    {
+        return view('subscriber.create', compact('emailList'));
+    }
+
+    public function store(EmailList $emailList): RedirectResponse
+    {
+        $data = request()->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('subscribers')->where('email_list_id', $emailList->id)],
+        ]);
+
+        $emailList->subscribers()->create($data);
+
+        return to_route("subscribers.index",$emailList)->with('message', __('Subscriber created successfully!'));
+        
     }
 
     public function destroy(mixed $list, Subscriber $subscriber): RedirectResponse
