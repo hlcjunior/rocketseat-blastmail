@@ -8,7 +8,7 @@
 
             <div>
                 <x-input-label for="title" :value="__('Title')" />
-                <x-text-input
+                <x-input.text
                         id="title"
                         class="block mt-1 w-full"
                         name="title"
@@ -20,7 +20,7 @@
 
             <div>
                 <x-input-label for="file"  :value="__('List File')" />
-                <x-text-input
+                <x-input.text
                         id="file"
                         class="block mt-1 w-full"
                         name="listFile"
@@ -33,13 +33,13 @@
 
 
             <div class="flex items-center space-x-4">
-                <x-secondary-button type="reset">
+                <x-button.secondary type="reset">
                     {{__('Cancel')}}
-                </x-secondary-button>
+                </x-button.secondary>
 
-                <x-primary-button type="submit">
+                <x-button type="submit">
                     {{__('Save')}}
-                </x-primary-button>
+                </x-button>
             </div>
 
         </x-form>
