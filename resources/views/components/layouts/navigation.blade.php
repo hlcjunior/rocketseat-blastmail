@@ -22,6 +22,13 @@
                     >
                         {{ __('Email List') }}
                     </x-nav-link>
+
+                    <x-nav-link
+                            :href="route('template.index')"
+                            :active="request()->routeIs('template.*')"
+                    >
+                        {{ __('Templates') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -83,6 +90,13 @@
                     :active="request()->routeIs('email-list.*')"
             >
                 {{ __('Email List') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link
+                    :href="route('template.index')"
+                    :active="request()->routeIs('template.*')"
+            >
+                {{ __('Templates') }}
             </x-responsive-nav-link>
         </div>
 
