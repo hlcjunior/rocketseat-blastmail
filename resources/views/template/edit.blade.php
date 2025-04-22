@@ -20,12 +20,9 @@
 
             <div>
                 <x-input-label for="body" :value="__('Body')" />
-                <x-input.text
-                        id="body"
-                        class="block mt-1 w-full"
+                <x-input.richtext
                         name="body"
                         :value="old('body', $template->body)"
-                        autofocus
                 />
                 <x-input-error :messages="$errors->get('body')" class="mt-2" />
             </div>
