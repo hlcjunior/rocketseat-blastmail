@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\EmailListController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubscriberController;
@@ -29,7 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/email-list/{emailList}/subscribers/create', [SubscriberController::class,'store']);
     Route::delete('/email-list/{emailList}/subscribers/{subscriber}', [SubscriberController::class,'destroy'])->name('subscribers.destroy');
 
-    Route::resource('template', TemplateController::class);
+    Route::resource('templates', TemplateController::class);
+    Route::resource('campaigns', CampaignController::class)->only(['index','create','destroy']);
 
 });
 

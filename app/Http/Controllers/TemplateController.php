@@ -22,7 +22,7 @@ class TemplateController extends Controller
             $withTrashed = request('withTrashed', false);
 
 
-        return view('template.index', [
+        return view('templates.index', [
             'templates' => Template::query()
                 ->when($withTrashed, fn(Builder $query) => $query->withTrashed())
                 ->when(
@@ -43,7 +43,7 @@ class TemplateController extends Controller
      */
     public function create(): View|Application|Factory
     {
-        return view('template.create');
+        return view('templates.create');
     }
 
     /**
@@ -58,7 +58,7 @@ class TemplateController extends Controller
 
         Template::create($data);
 
-        return to_route('template.index')->with('message', __('Template created successfully!'));
+        return to_route('templates.index')->with('message', __('Template created successfully!'));
     }
 
     /**
@@ -66,7 +66,7 @@ class TemplateController extends Controller
      */
     public function show(Template $template): View|Application|Factory
     {
-        return view('template.show', compact('template'));
+        return view('templates.show', compact('template'));
     }
 
     /**
@@ -74,7 +74,7 @@ class TemplateController extends Controller
      */
     public function edit(Template $template): View|Application|Factory
     {
-        return view('template.edit', compact('template'));
+        return view('templates.edit', compact('template'));
     }
 
     /**
@@ -90,7 +90,7 @@ class TemplateController extends Controller
         $template->fill($data);
         $template->save();
 
-        return to_route('template.index')->with('message', __('Template updated successfully!'));
+        return to_route('templates.index')->with('message', __('Template updated successfully!'));
     }
 
     /**
@@ -100,6 +100,6 @@ class TemplateController extends Controller
     {
         $template->delete();
 
-        return to_route('template.index')->with('message', __('Template deleted successfully!'));
+        return to_route('templates.index')->with('message', __('Template deleted successfully!'));
     }
 }
