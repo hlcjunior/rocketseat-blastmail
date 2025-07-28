@@ -2,46 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CampaignStoreRequest;
 use App\Models\Campaign;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class CampaignController extends Controller
 {
 
     //create a new campaign calling the view
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function create(?string $tab = null): View|Application|Factory
     {
+        //session()->forget('campaigns::create');
+
         return view('campaigns.create',[
             'tab' => $tab,
             'form' => match ($tab) {
                 'template' => '_template',
                 'schedule' => '_schedule',
                 default => '_config',
-            }
+            },
+            'data' => session()->get('campaigns::create', [
+                'name' => null,
+                'subject' => null,
+                'email_list_id' => null,
+                'template_id' => null,
+                'body' => null,
+                'track_click' => null,
+                'track_open' => null,
+                'send_at' => null,
+            ]),
         ]);
     }
 
-    public function store(?string $tab = null): RedirectResponse
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function store(CampaignStoreRequest $request, ?string $tab = null): RedirectResponse
     {
-        if(blank($tab)) {
-            $data = request()->validate([
-                'name' => ['required', 'max:255'],
-                'subject' => ['required', 'max:40'],
-                'email_list_id' => ['nullable'],
-                'template_id' => ['nullable'],
-            ]);
 
-            session()->put('campaigns::create', $data);
 
-            return to_route('campaigns.create', ['tab'=>'template']);
+        $data = $request->getData();
+        $toRoute = $request->getToRoute();
 
+        if($tab == 'schedule') {
+            Campaign::create($data);
         }
 
-        return to_route('campaigns.create');
+        return response()->redirectTo($toRoute);
 
     }
 
