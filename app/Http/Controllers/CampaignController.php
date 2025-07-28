@@ -22,8 +22,6 @@ class CampaignController extends Controller
      */
     public function create(?string $tab = null): View|Application|Factory
     {
-        //session()->forget('campaigns::create');
-
         return view('campaigns.create',[
             'tab' => $tab,
             'form' => match ($tab) {

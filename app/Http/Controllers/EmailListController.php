@@ -11,15 +11,21 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class EmailListController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function index(): View|Application|Factory
     {
         $search = request()->search;
+        $withTrashed = request()->get('withTrashed', false);
+
         $emailLists = EmailList::query()
             ->withCount('subscribers')
             ->when(
@@ -29,7 +35,7 @@ class EmailListController extends Controller
                     ->orWhere('id', '=', $search)
             )
             ->paginate(2)
-            ->appends(compact('search'));
+            ->appends(compact('search', 'withTrashed'));
 
         return view('email-list.index', [
             'emailLists' => $emailLists,
